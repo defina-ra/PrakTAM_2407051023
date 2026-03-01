@@ -1,4 +1,0 @@
-package Model
-
-object Course {
-}
