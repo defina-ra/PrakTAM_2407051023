@@ -5,20 +5,32 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.definaa.model.MenuItem
 import com.example.definaa.model.MenuSource
 import com.example.definaa.ui.theme.DefinaaTheme
 
@@ -28,57 +40,116 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DefinaaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Defina Rahmayanti",
-                        npm = "2407051023",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                DaftarMenuScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, npm: String, modifier: Modifier = Modifier) {
-    val daftarMenu = MenuSource.dummyMenu
+fun DaftarMenuScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .background(Color(0xFFF1F8E9))
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "🥗 CheatDay+",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2E7D32)
+        )
 
-    Column(modifier = modifier.padding(16.dp)) {
+        Text(
+            text = "Diet Tetap Sehat, Cheat Tetap Boleh!",
+            fontSize = 14.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
-        Text(text = "Nama: $name", fontWeight = FontWeight.Bold)
-        Text(text = "NPM: $npm")
+        MenuSource.dummyMenu.forEach { menu ->
+            DetailScreen(menu = menu)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(text = "Menu Diet", fontWeight = FontWeight.Bold)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        daftarMenu.forEach { menu ->
-
+@Composable
+fun DetailScreen(menu: MenuItem) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
 
             Image(
                 painter = painterResource(id = menu.imageRes),
                 contentDescription = menu.nama,
                 modifier = Modifier
-                    .size(120.dp)
-                    .padding(4.dp)
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                contentScale = ContentScale.Crop
             )
 
-            Text(text = "Nama: ${menu.nama}", fontWeight = FontWeight.Bold)
-            Text(text = "Kalori: ${menu.kalori} kal")
-            Text(text = "Kategori: ${menu.kategori}")
-            Text(text = "Info: ${menu.deskripsi}")
-            Spacer(modifier = Modifier.height(8.dp))
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(
+                    text = menu.nama,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = menu.deskripsi,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    Text(
+                        text = "🔥 ${menu.kalori} kal",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE65100)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = if (menu.kategori == "Diet")
+                            "🥗 Diet" else "🍔 Cheat Day",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (menu.kategori == "Diet")
+                            Color(0xFF2E7D32) else Color(0xFFE53935)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = { },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Tambah ke Rencana Diet")
+                }
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun DaftarMenuPreview() {
     DefinaaTheme {
-        Greeting("Defina Rahmayanti", npm = "2407051023")
+        DaftarMenuScreen()
     }
 }
