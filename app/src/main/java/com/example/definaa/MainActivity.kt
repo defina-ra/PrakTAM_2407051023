@@ -6,25 +6,31 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -59,46 +65,113 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DaftarMenuScreen() {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .background(Color(0xFFF1F8E9))
-            .padding(16.dp)
+            .statusBarsPadding()
+            .background(Color(0xFFF1F8E9)),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = "🥗 CheatDay+",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF2E7D32)
-        )
+        item {
+            Text(
+                text = "🥗 CheatDay+",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2E7D32)
+            )
 
-        Text(
-            text = "Diet Tetap Sehat, Cheat Tetap Boleh!",
-            fontSize = 14.sp,
-            color = Color.Gray,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+            Text(
+                text = "Diet Tetap Sehat, Cheat Tetap Boleh!",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-        MenuSource.dummyMenu.forEach { menu ->
-            DetailScreen(menu = menu)
+            Text(
+                text = "⭐ Rekomendasi Populer",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(MenuSource.dummyMenu) { menu ->
+                    MenuRowItem(menu = menu)
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "📋 Daftar Menu Lengkap",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
+        items(MenuSource.dummyMenu) { menu ->
+            DetailScreen(menu = menu)
+        }
+    }
+}
+
+@Composable
+fun MenuRowItem(menu: MenuItem) {
+    Card(
+        modifier = Modifier.width(150.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column {
+            Image(
+                painter = painterResource(id = menu.imageRes),
+                contentDescription = menu.nama,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                contentScale = ContentScale.Crop
+            )
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = menu.nama,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = "${menu.kalori} kal",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFE65100)
+                )
+                Text(
+                    text = if (menu.kategori == "Diet")
+                        "🥗 Diet" else "🍔 Cheat",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (menu.kategori == "Diet")
+                        Color(0xFF2E7D32) else Color(0xFFE53935)
+                )
+            }
         }
     }
 }
 
 @Composable
 fun DetailScreen(menu: MenuItem) {
-
-
     var isFavorite by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-
 
             Box {
                 Image(
@@ -106,16 +179,15 @@ fun DetailScreen(menu: MenuItem) {
                     contentDescription = menu.nama,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
+                        .height(200.dp)
                         .clip(
                             RoundedCornerShape(
-                                topStart = 12.dp,
-                                topEnd = 12.dp
+                                topStart = 16.dp,
+                                topEnd = 16.dp
                             )
                         ),
                     contentScale = ContentScale.Crop
                 )
-
 
                 IconButton(
                     onClick = { isFavorite = !isFavorite },
@@ -128,11 +200,8 @@ fun DetailScreen(menu: MenuItem) {
                             Icons.Filled.Favorite
                         else
                             Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite Icon",
-                        tint = if (isFavorite)
-                            Color.Red
-                        else
-                            Color.White
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.White
                     )
                 }
             }
@@ -141,7 +210,7 @@ fun DetailScreen(menu: MenuItem) {
 
                 Text(
                     text = menu.nama,
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -149,7 +218,7 @@ fun DetailScreen(menu: MenuItem) {
 
                 Text(
                     text = menu.deskripsi,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
 
