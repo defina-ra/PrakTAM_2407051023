@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +49,10 @@ import androidx.compose.ui.unit.sp
 import com.example.definaa.model.MenuItem
 import com.example.definaa.model.MenuSource
 import com.example.definaa.ui.theme.DefinaaTheme
+import com.example.definaa.ui.theme.OrangeAccent
+import com.example.definaa.ui.theme.RedCheat
+import com.example.definaa.ui.theme.GreenPrimary
+import com.example.definaa.ui.theme.TextGray
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,30 +71,27 @@ fun DaftarMenuScreen() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
-            .background(Color(0xFFF1F8E9)),
+            .statusBarsPadding(),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         item {
             Text(
                 text = "🥗 CheatDay+",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2E7D32)
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
             )
 
             Text(
                 text = "Diet Tetap Sehat, Cheat Tetap Boleh!",
-                fontSize = 14.sp,
-                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextGray,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             Text(
                 text = "⭐ Rekomendasi Populer",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -107,8 +107,7 @@ fun DaftarMenuScreen() {
 
             Text(
                 text = "📋 Daftar Menu Lengkap",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
@@ -124,7 +123,10 @@ fun MenuRowItem(menu: MenuItem) {
     Card(
         modifier = Modifier.width(150.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column {
             Image(
@@ -139,20 +141,19 @@ fun MenuRowItem(menu: MenuItem) {
                 Text(
                     text = menu.nama,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
                 Text(
                     text = "${menu.kalori} kal",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFE65100)
+                    color = OrangeAccent
                 )
                 Text(
                     text = if (menu.kategori == "Diet")
                         "🥗 Diet" else "🍔 Cheat",
                     style = MaterialTheme.typography.bodySmall,
                     color = if (menu.kategori == "Diet")
-                        Color(0xFF2E7D32) else Color(0xFFE53935)
+                        GreenPrimary else RedCheat
                 )
             }
         }
@@ -210,8 +211,8 @@ fun DetailScreen(menu: MenuItem) {
 
                 Text(
                     text = menu.nama,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -219,7 +220,7 @@ fun DetailScreen(menu: MenuItem) {
                 Text(
                     text = menu.deskripsi,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = TextGray
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -227,9 +228,9 @@ fun DetailScreen(menu: MenuItem) {
                 Row {
                     Text(
                         text = "🔥 ${menu.kalori} kal",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFE65100)
+                        color = OrangeAccent
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -237,10 +238,10 @@ fun DetailScreen(menu: MenuItem) {
                     Text(
                         text = if (menu.kategori == "Diet")
                             "🥗 Diet" else "🍔 Cheat Day",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (menu.kategori == "Diet")
-                            Color(0xFF2E7D32) else Color(0xFFE53935)
+                            GreenPrimary else RedCheat
                     )
                 }
 
@@ -251,7 +252,11 @@ fun DetailScreen(menu: MenuItem) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Tambah ke Rencana Diet")
+                    Text(
+                        text = "Tambah ke Rencana Diet",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
         }
