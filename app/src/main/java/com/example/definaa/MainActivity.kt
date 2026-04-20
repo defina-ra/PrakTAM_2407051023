@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,14 +28,18 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,10 +54,12 @@ import androidx.compose.ui.unit.sp
 import com.example.definaa.model.MenuItem
 import com.example.definaa.model.MenuSource
 import com.example.definaa.ui.theme.DefinaaTheme
+import com.example.definaa.ui.theme.GreenPrimary
 import com.example.definaa.ui.theme.OrangeAccent
 import com.example.definaa.ui.theme.RedCheat
-import com.example.definaa.ui.theme.GreenPrimary
 import com.example.definaa.ui.theme.TextGray
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -162,104 +169,143 @@ fun MenuRowItem(menu: MenuItem) {
 
 @Composable
 fun DetailScreen(menu: MenuItem) {
+
+
     var isFavorite by remember { mutableStateOf(false) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+    // ✅ STATE BARU Modul 9
+    var isLoading by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-            Box {
-                Image(
-                    painter = painterResource(id = menu.imageRes),
-                    contentDescription = menu.nama,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 16.dp,
-                                topEnd = 16.dp
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+
+                Box {
+                    Image(
+                        painter = painterResource(id = menu.imageRes),
+                        contentDescription = menu.nama,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 16.dp,
+                                    topEnd = 16.dp
+                                )
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    IconButton(
+                        onClick = { isFavorite = !isFavorite },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite)
+                                Icons.Filled.Favorite
+                            else
+                                Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = if (isFavorite) Color.Red else Color.White
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.padding(16.dp)) {
+
+                    Text(
+                        text = menu.nama,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = menu.deskripsi,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextGray
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row {
+                        Text(
+                            text = "🔥 ${menu.kalori} kal",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = OrangeAccent
+                        )
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Text(
+                            text = if (menu.kategori == "Diet")
+                                "🥗 Diet" else "🍔 Cheat Day",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (menu.kategori == "Diet")
+                                GreenPrimary else RedCheat
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                isLoading = true
+                                delay(2000)
+                                snackbarHostState.showSnackbar(
+                                    "Menu ${menu.nama} berhasil ditambahkan ke rencana diet!"
+                                )
+                                isLoading = false
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        enabled = !isLoading  // ✅ tombol nonaktif saat loading
+                    ) {
+                        if (isLoading) {
+
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
                             )
-                        ),
-                    contentScale = ContentScale.Crop
-                )
-
-                IconButton(
-                    onClick = { isFavorite = !isFavorite },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite)
-                            Icons.Filled.Favorite
-                        else
-                            Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.White
-                    )
-                }
-            }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-
-                Text(
-                    text = menu.nama,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = menu.deskripsi,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextGray
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row {
-                    Text(
-                        text = "🔥 ${menu.kalori} kal",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = OrangeAccent
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = if (menu.kategori == "Diet")
-                            "🥗 Diet" else "🍔 Cheat Day",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (menu.kategori == "Diet")
-                            GreenPrimary else RedCheat
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = { },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Tambah ke Rencana Diet",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Memproses...")
+                        } else {
+                            Text(
+                                text = "Tambah ke Rencana Diet",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
                 }
             }
         }
+
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
