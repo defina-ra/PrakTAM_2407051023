@@ -25,8 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.definaa.model.MenuItem
-import com.example.definaa.network.RetrofitClient
+import com.example.definaa.data.model.MenuItem
+import com.example.definaa.data.repository.MenuRepository
 import com.example.definaa.ui.theme.DefinaaTheme
 import com.example.definaa.ui.theme.GreenPrimary
 import com.example.definaa.ui.theme.OrangeAccent
@@ -52,12 +52,13 @@ fun DaftarMenuScreen() {
     var menus by remember { mutableStateOf<List<MenuItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
+    val repository = remember { MenuRepository() }
 
     LaunchedEffect(Unit) {
         try {
-            menus = RetrofitClient.instance.getMenus()
+            menus = repository.getMenus()
             isLoading = false
-            isError = false
+            isError = menus.isEmpty()
         } catch (e: Exception) {
             isLoading = false
             isError = true
